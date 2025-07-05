@@ -1,0 +1,56 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Step 1: Load Data
+df = pd.read_csv("train.csv")
+print("First 5 rows:\n", df.head())
+print("\nData Info:\n")
+print(df.info())
+print("\nMissing values:\n", df.isnull().sum())
+
+# Step 2: Data Cleaning
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+df.drop(columns=['Cabin'], inplace=True)
+
+# Step 3: Encode Categorical Variables
+df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
+df['Embarked'] = df['Embarked'].map({'S': 0, 'C': 1, 'Q': 2})
+
+# Step 4: EDA Visualizations
+
+# Survival Count
+sns.countplot(x='Survived', data=df)
+plt.title("Survival Count")
+plt.xticks([0, 1], ['Not Survived', 'Survived'])
+plt.show()
+
+# Survival by Sex
+sns.countplot(x='Sex', hue='Survived', data=df)
+plt.title("Survival by Gender")
+plt.xticks([0, 1], ['Male', 'Female'])
+plt.show()
+
+# Survival by Pclass
+sns.countplot(x='Pclass', hue='Survived', data=df)
+plt.title("Survival by Passenger Class")
+plt.show()
+
+# Age Distribution
+plt.figure(figsize=(10,6))
+sns.histplot(df['Age'], bins=30, kde=True)
+plt.title("Age Distribution of Passengers")
+plt.show()
+
+# Survival by Age
+plt.figure(figsize=(10,6))
+sns.histplot(data=df, x='Age', hue='Survived', bins=30, kde=True)
+plt.title("Survival Distribution by Age")
+plt.show()
+
+# Heatmap: Correlation Matrix
+plt.figure(figsize=(10,8))
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
+plt.title("Correlation Heatmap")
+plt.show()
