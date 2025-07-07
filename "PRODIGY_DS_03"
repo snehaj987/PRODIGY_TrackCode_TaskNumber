@@ -1,0 +1,53 @@
+# Import required libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+
+# Step 1: Load dataset
+df = pd.read_csv("bank-additional-full.csv", sep=";")
+print("Data Preview:\n", df.head())
+print("\nTarget Distribution:\n", df['y'].value_counts())
+
+# Step 2: Encode categorical variables
+label_encoders = {}
+for column in df.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    df[column] = le.fit_transform(df[column])
+    label_encoders[column] = le  # Save encoder for potential inverse transform
+
+# Step 3: Split data into X (features) and y (target)
+X = df.drop('y', axis=1)
+y = df['y']
+
+# Step 4: Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 5: Build and Train Decision Tree Classifier
+clf = DecisionTreeClassifier(random_state=42, max_depth=5)
+clf.fit(X_train, y_train)
+
+# Step 6: Make Predictions
+y_pred = clf.predict(X_test)
+
+# Step 7: Evaluate Model
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# Step 8: Confusion Matrix
+plt.figure(figsize=(6,4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt="d", cmap="Blues")
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.tight_layout()
+plt.show()
+
+# Step 9: Visualize Decision Tree
+plt.figure(figsize=(20,10))
+plot_tree(clf, feature_names=X.columns, class_names=['no', 'yes'], filled=True, fontsize=10)
+plt.title("Decision Tree (Depth = 5)")
+plt.show()
